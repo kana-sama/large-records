@@ -486,16 +486,16 @@ viewRecC
          , con_mb_cxt = Nothing
          , con_args   = RecCon (L _ fields)
          }
-    ) = (reLoc conName ,) <$> mapM viewRecField fields
+    ) = ((reLoc conName ,) . concat) <$> mapM viewRecField fields
   where
-    viewRecField :: LConDeclField GhcPs -> Maybe (LRdrName, LHsType GhcPs)
+    viewRecField :: LConDeclField GhcPs -> Maybe [(LRdrName, LHsType GhcPs)]
     viewRecField
         (L _
            ConDeclField {
-               cd_fld_names = [L _ fieldName]
+               cd_fld_names = fieldNames
              , cd_fld_type  = ty
              }
-        ) = Just $ (viewFieldOcc fieldName, ty)
+        ) = Just [(viewFieldOcc fieldName, ty) | L _ fieldName <- fieldNames]
     viewRecField _otherwise = Nothing
 
     viewFieldOcc :: FieldOcc GhcPs -> LRdrName
